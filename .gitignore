@@ -1,0 +1,13 @@
+*.pyc
+__pycache__/
+.venv/
+venv/
+.env
+*.log
+/tmp/
+.DS_Store
+*.xlsx
+*.xls
+*.csv
+!sample_*.xlsx
+!sample_*.csv

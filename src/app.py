@@ -30,6 +30,7 @@ app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
 # セキュリティ設定
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB
 app.config['JSON_SORT_KEYS'] = False
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
 
 # グローバル変数で部品展開マスタを保持
 parts_master = None
@@ -340,4 +341,7 @@ def export_matching():
 
 if __name__ == '__main__':
     logger.info("Starting Flask app...")
-    app.run(debug=True, host='0.0.0.0', port=5000, use_reloader=False)
+    # 環境変数で本番/開発を切り替え
+    import os
+    debug_mode = os.environ.get('FLASK_ENV', 'development') == 'development'
+    app.run(debug=debug_mode, host='0.0.0.0', port=5000, use_reloader=False)

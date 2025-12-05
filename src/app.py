@@ -1,5 +1,4 @@
-from flask import Flask, render_template, request, jsonify, send_file, session, redirect, url_for
-from functools import wraps
+from flask import Flask, render_template, request, jsonify, send_file
 import pandas as pd
 import os
 from io import BytesIO
@@ -32,19 +31,6 @@ app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB
 app.config['JSON_SORT_KEYS'] = False
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
-
-# ログイン設定
-LOGIN_USERNAME = os.environ.get('LOGIN_USERNAME', 'admin')
-LOGIN_PASSWORD = os.environ.get('LOGIN_PASSWORD', 'admin123')
-
-def login_required(f):
-    """ログイン必須デコレータ"""
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if not session.get('logged_in'):
-            return redirect(url_for('login'))
-        return f(*args, **kwargs)
-    return decorated_function
 
 # グローバル変数で部品展開マスタを保持
 parts_master = None
@@ -116,37 +102,11 @@ def build_parts_master_dict(df):
     return master_dict
 
 @app.route('/')
-@login_required
 def index():
     print(f"[{datetime.now()}] GET / - serving index.html")
     return render_template('index.html')
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    """ログインページ"""
-    if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
-        
-        if username == LOGIN_USERNAME and password == LOGIN_PASSWORD:
-            session['logged_in'] = True
-            logger.info(f"User logged in: {username}")
-            return redirect(url_for('index'))
-        else:
-            logger.warning(f"Failed login attempt: {username}")
-            return render_template('login.html', error='ユーザー名またはパスワードが間違っています')
-    
-    return render_template('login.html')
-
-@app.route('/logout')
-def logout():
-    """ログアウト"""
-    session.pop('logged_in', None)
-    logger.info("User logged out")
-    return redirect(url_for('login'))
-
 @app.route('/api/upload-master', methods=['POST'])
-@login_required
 def upload_master():
     """部品展開マスタをアップロード"""
     global parts_master, parts_master_dict
@@ -202,7 +162,6 @@ def upload_master():
         return jsonify({'error': f'ファイル読込エラー: {str(e)}'}), 400
 
 @app.route('/api/master-data', methods=['GET'])
-@login_required
 def get_master_data():
     """部品展開マスタの内容を取得"""
     logger.info("GET /api/master-data")
@@ -228,7 +187,6 @@ def get_master_data():
     })
 
 @app.route('/api/matching', methods=['POST'])
-@login_required
 def matching():
     """完成品照合"""
     global parts_master_dict
@@ -307,7 +265,6 @@ def matching():
         return jsonify({'error': f'ファイル処理エラー: {str(e)}'}), 400
 
 @app.route('/api/export-matching', methods=['POST'])
-@login_required
 def export_matching():
     """照合結果をExcelでエクスポート"""
     try:

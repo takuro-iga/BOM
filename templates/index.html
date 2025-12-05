@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>部品展開マスタシステム</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>部品展開マスタ管理システム</h1>
+            <p class="subtitle">完成品と構成部品の関連管理</p>
+        </header>
+
+        <nav class="tabs">
+            <button class="tab-button active" data-tab="master-upload">
+                📤 マスタアップロード
+            </button>
+            <button class="tab-button" data-tab="master-view">
+                👁️ マスタ閲覧
+            </button>
+            <button class="tab-button" data-tab="matching">
+                🔍 完成品照合
+            </button>
+        </nav>
+
+        <!-- タブ1: マスタアップロード -->
+        <section id="master-upload" class="tab-content active">
+            <div class="card">
+                <h2>部品展開マスタのアップロード</h2>
+                
+                <div class="form-group">
+                    <label for="header-row">ヘッダー行（デフォルト: 1行目）:</label>
+                    <input type="number" id="header-row" value="1" min="1" max="10" />
+                </div>
+
+                <div class="form-group">
+                    <label for="master-file">ExcelまたはCSVファイル選択:</label>
+                    <input type="file" id="master-file" accept=".xlsx,.xls,.csv" />
+                </div>
+                <div class="form-group">
+                    <button id="upload-btn" class="btn btn-primary">アップロード</button>
+                </div>
+                <div id="upload-message" class="message"></div>
+
+                <div class="file-format">
+                    <h3>📋 ファイル形式</h3>
+                    <table>
+                        <tr>
+                            <th>列</th>
+                            <th>データ</th>
+                            <th>説明</th>
+                        </tr>
+                        <tr>
+                            <td>A</td>
+                            <td>完成品コード</td>
+                            <td>完成品照合に使用</td>
+                        </tr>
+                        <tr>
+                            <td>B</td>
+                            <td>完成品商品名</td>
+                            <td>完成品の名称</td>
+                        </tr>
+                        <tr>
+                            <td>C</td>
+                            <td>構成部品商品コード（確認用）</td>
+                            <td>部品展開マスタ確認用</td>
+                        </tr>
+                        <tr>
+                            <td>D</td>
+                            <td>構成部品商品コード</td>
+                            <td>実際の構成部品コード</td>
+                        </tr>
+                        <tr>
+                            <td>E</td>
+                            <td>入数</td>
+                            <td>パッケージ入数</td>
+                        </tr>
+                        <tr>
+                            <td>F</td>
+                            <td>箱数</td>
+                            <td>箱の数量</td>
+                        </tr>
+                        <tr>
+                            <td>G</td>
+                            <td>構成数量</td>
+                            <td>完成品に必要な部品数</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- タブ2: マスタ閲覧 -->
+        <section id="master-view" class="tab-content">
+            <div class="card">
+                <h2>部品展開マスタ内容</h2>
+                
+                <div class="search-container">
+                    <div class="search-box">
+                        <input type="text" id="search-input" placeholder="完成品コードまたは商品名で検索..." />
+                        <button id="search-btn" class="btn btn-search">🔍 検索</button>
+                        <button id="clear-search-btn" class="btn btn-search-clear">✕ クリア</button>
+                    </div>
+                    <div id="search-results-info" class="search-info"></div>
+                </div>
+
+                <div id="master-view-container">
+                    <p class="info-message">マスタをアップロードしてください</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- タブ3: 完成品照合 -->
+        <section id="matching" class="tab-content">
+            <div class="card">
+                <h2>完成品照合</h2>
+                <p class="info-text">アップロード済みのマスタに対して、商品コード一覧ファイルを照合します。</p>
+                
+                <div class="form-group">
+                    <label for="matching-file">照合対象ファイル（A列に商品コード）:</label>
+                    <input type="file" id="matching-file" accept=".xlsx,.xls" />
+                </div>
+                <div class="form-group">
+                    <button id="matching-btn" class="btn btn-primary">照合実行</button>
+                </div>
+                <div id="matching-message" class="message"></div>
+
+                <div id="matching-results-container"></div>
+            </div>
+        </section>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
